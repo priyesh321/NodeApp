@@ -100,9 +100,9 @@ router.post(
 router.get(
   '/getUser/:email',
   async (req, res) => {
-    const email = req.params.email
+    const id = req.params.id
     let user = await User.findOne({
-      email
+      id
     });
     if (!user)
       return res.status(400).json({
