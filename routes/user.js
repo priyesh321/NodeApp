@@ -101,7 +101,6 @@ router.get(
   '/getUser/:id',
   async (req, res) => {
     const id = req.params.id
-    console.log('mili id', id)
     let user = await User.findOne({
       _id:id
     });
@@ -118,15 +117,10 @@ router.get(
 router.put(
   '/updateUser/:id',
   async (req, res) => {
-    console.log(req,'body1111');
-    
     const id = req.params.id
    let user_details = await User.findOne({
       _id: id
     })
-
-    console.log('yahi he kya data', user_details)
-
     // Find id and update it with the request body
    User.findByIdAndUpdate(req.params.id, {
       phoneNumber: req.body.phoneNumber ? req.body.phoneNumber : user_details.phoneNumber,
