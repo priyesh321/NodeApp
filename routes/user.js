@@ -100,7 +100,10 @@ router.post(
 router.get(
   '/getUser/:id',
   async (req, res) => {
-    const id = req.params.id
+    console.log(req,'request');
+    
+    const id = req.body.id
+
     let user = await User.findOne({
       id
     });
