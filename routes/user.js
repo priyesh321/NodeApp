@@ -118,16 +118,17 @@ router.get(
 router.put(
   '/updateUser/:id',
   async (req, res) => {
-    let user_details = {};
+    console.log(req,'body1111');
+    
     const id = req.params.id
-    User.findOne({
+   let user_details = await User.findOne({
       _id: id
-    }).then(function (user) {
-      user_details = user
     })
 
+    console.log('yahi he kya data', user_details)
+
     // Find id and update it with the request body
-    User.findByIdAndUpdate(req.params.id, {
+   User.findByIdAndUpdate(req.params.id, {
       phoneNumber: req.body.phoneNumber ? req.body.phoneNumber : user_details.phoneNumber,
       email:req.body.email ? req.body.email : user_details.email,
       dob: req.body.dob ? req.body.dob : user_details.dob,
