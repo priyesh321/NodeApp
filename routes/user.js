@@ -100,12 +100,10 @@ router.post(
 router.get(
   '/getUser/:id',
   async (req, res) => {
-    console.log(req,'request');
-    
-    const id = req.body.id
-
+    const id = req.params.id
+    console.log('mili id', id)
     let user = await User.findOne({
-      id
+      _id:id
     });
     if (!user)
       return res.status(400).json({
