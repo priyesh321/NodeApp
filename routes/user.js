@@ -11,7 +11,7 @@ router.post(
     check("phoneNumber", "Please Enter a Valid phoneNumber")
       .not()
       .isEmpty()
-    ,
+      ,
     check("email", "Please enter a valid email").isEmail(),
     check("password", "Please enter a valid password").isLength({
       min: 6
@@ -103,7 +103,7 @@ router.get(
   async (req, res) => {
     const id = req.params.id
     let user = await User.findOne({
-      _id: id
+      _id:id
     });
     if (!user)
       return res.status(400).json({
@@ -119,13 +119,13 @@ router.put(
   '/updateUser/:id',
   async (req, res) => {
     const id = req.params.id
-    let user_details = await User.findOne({
+   let user_details = await User.findOne({
       _id: id
     })
     // Find id and update it with the request body
-    User.findByIdAndUpdate(req.params.id, {
+   User.findByIdAndUpdate(req.params.id, {
       phoneNumber: req.body.phoneNumber ? req.body.phoneNumber : user_details.phoneNumber,
-      email: req.body.email ? req.body.email : user_details.email,
+      email:req.body.email ? req.body.email : user_details.email,
       dob: req.body.dob ? req.body.dob : user_details.dob,
       address: req.body.address ? req.body.address : user_details.address,
       files: req.body.files ? req.body.files : user_details.files,
@@ -244,15 +244,15 @@ router.post(
         email
       });
       if (!user)
-        return res.status(400).json(
-          "User Not Exist"
-        );
+        return res.status(400).json({
+          message: "User Not Exist"
+        });
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch)
-        return res.status(400).json(
-          "Incorrect Password!"
-        );
+        return res.status(400).json({
+          message: "Incorrect Password!"
+        });
 
       const payload = {
         user: {
