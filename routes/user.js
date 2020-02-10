@@ -19,7 +19,7 @@ router.post(
       min: 6
     }),
     check("address", "Please enter address")
-      .not()  
+      .not()
       .isEmpty(),
     check("dob", "Please enter dob")
       .not()
@@ -161,7 +161,6 @@ router.put(
   }
 )
 
-
 // Reset password
 router.put(
   "/reset-password/:id",
@@ -171,22 +170,22 @@ router.put(
     try {
       User.findOne({
         _id: id
-      }).then(function (user) {
+      }).then((user) => {
         if (!user) {
           return throwFailed(res, 'No user found with that id.')
         }
         else {
-          bcrypt.compare(currentPassword, user.password, function (err, isMatch) {
+          bcrypt.compare(currentPassword, user.password, (err, isMatch) => {
             if (err) {
               throw err
             } else if (!isMatch) {
             } else {
               const saltRounds = 10
-              bcrypt.genSalt(saltRounds, function (err, salt) {
+              bcrypt.genSalt(saltRounds, (err, salt) => {
                 if (err) {
                   throw err
                 } else {
-                  bcrypt.hash(newPassword, salt, function (err, hash) {
+                  bcrypt.hash(newPassword, salt, (err, hash) => {
                     if (err) {
                       throw err
                     } else {
@@ -332,18 +331,22 @@ router.get(
     }
     query.skip = size * (pageNo - 1)
     query.limit = size
-    Product.count({}, function (err, totalCount) {
+    Product.count({}, (err, totalCount) => {
       if (err)
-      return res.status(400).json({
-        message: "Product Not Exist"
-      });
-       Product.find({}, {}, query, function (err, data) {
+        return res.status(400).json({
+          message: "Product Not Exist"
+        });
+      Product.find({}, {}, query, (err, data) => {
         // Mongo command to fetch all data from collection.
         if (err) {
           response = { "error": true, "message": "Error fetching data" };
         } else {
           const totalPages = Math.ceil(totalCount / size)
-          response = { "error": false, "product": data, "pages": totalPages };
+          response = {
+            "error": false,
+            "product": data,
+            "pages": totalPages
+          };
         }
         res.json(response);
       });
