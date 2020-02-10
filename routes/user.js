@@ -4,20 +4,22 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
 const User = require("../model/User");
+const Product = require("../model/Product")
 
+// Registraton api
 router.post(
   "/signup",
   [
     check("phoneNumber", "Please Enter a Valid phoneNumber")
       .not()
       .isEmpty()
-      ,
+    ,
     check("email", "Please enter a valid email").isEmail(),
     check("password", "Please enter a valid password").isLength({
       min: 6
     }),
     check("address", "Please enter address")
-      .not()
+      .not()  
       .isEmpty(),
     check("dob", "Please enter dob")
       .not()
@@ -30,7 +32,6 @@ router.post(
         errors: errors.array()
       });
     }
-
     const {
       phoneNumber,
       email,
@@ -98,12 +99,14 @@ router.post(
   }
 );
 
+
+// Get user by id
 router.get(
   '/getUser/:id',
   async (req, res) => {
     const id = req.params.id
     let user = await User.findOne({
-      _id:id
+      _id: id
     });
     if (!user)
       return res.status(400).json({
@@ -115,17 +118,19 @@ router.get(
   }
 )
 
+
+// Update user by id
 router.put(
   '/updateUser/:id',
   async (req, res) => {
     const id = req.params.id
-   let user_details = await User.findOne({
+    let user_details = await User.findOne({
       _id: id
     })
     // Find id and update it with the request body
-   User.findByIdAndUpdate(req.params.id, {
+    User.findByIdAndUpdate(req.params.id, {
       phoneNumber: req.body.phoneNumber ? req.body.phoneNumber : user_details.phoneNumber,
-      email:req.body.email ? req.body.email : user_details.email,
+      email: req.body.email ? req.body.email : user_details.email,
       dob: req.body.dob ? req.body.dob : user_details.dob,
       address: req.body.address ? req.body.address : user_details.address,
       files: req.body.files ? req.body.files : user_details.files,
@@ -157,6 +162,7 @@ router.put(
 )
 
 
+// Reset password
 router.put(
   "/reset-password/:id",
   async (req, res) => {
@@ -221,6 +227,8 @@ router.put(
   }
 );
 
+
+// Login api
 router.post(
   "/login",
   [
@@ -280,5 +288,93 @@ router.post(
     }
   }
 );
+
+
+//Create new Product
+router.post(
+  "/create-product",
+  async (req, res) => {
+    let reqBody = await req.body;
+    if (Object.keys(reqBody).length === 0) {
+      return res.status(400).send({
+        message: "Product content can not be empty"
+      })
+    } else {
+      const product = new Product({
+        title: req.body.title || "No product title",
+        description: req.body.description,
+        price: req.body.price,
+        company: req.body.company
+      });
+      product.save()
+        .then(data => {
+          res.send(data);
+        }).catch(err => {
+          res.status(500).send({
+            message: err.message || "Something wrong while creating the product."
+          });
+        })
+    }
+  }
+)
+
+
+// Get all products
+router.get(
+  "/get-product",
+  async (req, res) => {
+    const pageNo = parseInt(req.query.pageNo)
+    const size = parseInt(req.query.size)
+    const query = {}
+    if (pageNo < 0 || pageNo === 0) {
+      response = { "error": true, "message": "invalid page number, should start with 1" };
+      return res.json(response)
+    }
+    query.skip = size * (pageNo - 1)
+    query.limit = size
+    Product.count({}, function (err, totalCount) {
+      if (err)
+      return res.status(400).json({
+        message: "Product Not Exist"
+      });
+       Product.find({}, {}, query, function (err, data) {
+        // Mongo command to fetch all data from collection.
+        if (err) {
+          response = { "error": true, "message": "Error fetching data" };
+        } else {
+          const totalPages = Math.ceil(totalCount / size)
+          response = { "error": false, "product": data, "pages": totalPages };
+        }
+        res.json(response);
+      });
+    })
+  }
+)
+
+
+// Delete product by id
+router.delete(
+  "/delete-product/:productId",
+  async (req, res) => {
+    Product.findByIdAndRemove(req.params.productId)
+      .then(product => {
+        if (!product) {
+          return res.status(404).send({
+            message: "Product not found with id " + req.params.productId
+          });
+        }
+        res.send({ message: "Product deleted successfully!" });
+      }).catch(err => {
+        if (err.kind === 'ObjectId' || err.name === 'NotFound') {
+          return res.status(404).send({
+            message: "Product not found with id " + req.params.productId
+          });
+        }
+        return res.status(500).send({
+          message: "Could not delete product with id " + req.params.productId
+        });
+      });
+  }
+)
 
 module.exports = router;
